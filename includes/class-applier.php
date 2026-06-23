@@ -180,21 +180,19 @@ class LlmsClick_Applier {
     public static function enqueue_block_editor(): void {
         $handle = 'llmsclick-block';
         wp_register_script($handle, false, ['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components'], LLMSCLICK_VERSION, true);
-        $js = <<<JS
-( function( blocks, el, blockEditor ) {
-    blocks.registerBlockType( 'llmsclick/faq', {
-        title: 'llms.click FAQ',
-        icon: 'editor-help',
-        category: 'widgets',
-        edit: function() {
-            return el( 'div', { className: 'llmsclick-faq-placeholder',
-                style: { padding: '12px', border: '1px dashed #888', borderRadius: '6px' } },
-                'Blocco FAQ answer-ready di llms.click. Il contenuto viene generato dai dati reali del sito e mostrato nel front-end.' );
-        },
-        save: function() { return null; } // dinamico: render lato server
-    } );
-} )( window.wp.blocks, window.wp.element, window.wp.blockEditor );
-JS;
+        $js = "( function( blocks, el, blockEditor ) {\n"
+            . "    blocks.registerBlockType( 'llmsclick/faq', {\n"
+            . "        title: 'llms.click FAQ',\n"
+            . "        icon: 'editor-help',\n"
+            . "        category: 'widgets',\n"
+            . "        edit: function() {\n"
+            . "            return el( 'div', { className: 'llmsclick-faq-placeholder',\n"
+            . "                style: { padding: '12px', border: '1px dashed #888', borderRadius: '6px' } },\n"
+            . "                'llms.click answer-ready FAQ block. The content is generated from your real site data and rendered on the front-end.' );\n"
+            . "        },\n"
+            . "        save: function() { return null; }\n"
+            . "    } );\n"
+            . "} )( window.wp.blocks, window.wp.element, window.wp.blockEditor );";
         wp_add_inline_script($handle, $js);
         wp_enqueue_script($handle);
     }
