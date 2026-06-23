@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       llms.click - AI Discoverability Fixes
- * Plugin URI:        https://llms.click/plugin
- * Description:        Apply llms.click AI-discoverability fixes (JSON-LD, Open Graph, llms.txt, robots AI-bot directives, answer-ready FAQ) generated on your real site content with one click. Requires an llms.click account (Silver plan or higher) and an API key.
+ * Plugin URI:        https://llms.click
+ * Description:        Applica con un click i fix di llms.click (JSON-LD, Open Graph, llms.txt, robots AI-bot, FAQ answer-ready) generati sui dati reali del tuo sito. Richiede un account llms.click (piano Silver o superiore) e una API key.
  * Version:           1.0.0
  * Requires at least: 5.8
  * Requires PHP:      7.4
@@ -12,10 +12,10 @@
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       llmsclick
  *
- * Anti-piracy principle: this plugin is a thin client. No premium logic runs
- * here. All the value (fix code, JSON-LD, AI content) is produced by the
- * llms.click server and returned ONLY to active subscribers. No subscription
- * -> the API replies "locked" -> nothing to apply.
+ * Principio anti-pirateria: questo plugin e' un thin client. Nessuna logica
+ * premium gira qui. Tutto il valore (codice fix, JSON-LD, contenuti AI) e'
+ * prodotto dal server llms.click e restituito SOLO a chi ha un abbonamento
+ * attivo. Niente abbonamento -> l'API risponde "locked" -> niente da applicare.
  */
 
 if (!defined('ABSPATH')) { exit; }
