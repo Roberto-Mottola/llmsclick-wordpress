@@ -1,15 +1,15 @@
 <?php
 /**
- * Pannello impostazioni llms.click.
- * Variabili dal contesto: nessuna (legge le option direttamente).
+ * llms.click settings page.
+ * Reads options directly; no context variables required.
  */
 if (!defined('ABSPATH')) { exit; }
 
-$api_key    = (string) get_option(LLMSCLICK_OPT_KEY, '');
-$site_url   = home_url('/');
-$site_host  = (string) parse_url($site_url, PHP_URL_HOST);
-$key_masked = $api_key !== '' ? substr($api_key, 0, 16) . str_repeat('•', 12) : '';
-$enabled    = LlmsClick_Applier::enabled_fixes();
+$llmsclick_api_key    = (string) get_option(LLMSCLICK_OPT_KEY, '');
+$llmsclick_site_url   = home_url('/');
+$llmsclick_site_host  = (string) wp_parse_url($llmsclick_site_url, PHP_URL_HOST);
+$llmsclick_key_masked = $llmsclick_api_key !== '' ? substr($llmsclick_api_key, 0, 16) . str_repeat('•', 12) : '';
+$llmsclick_enabled    = LlmsClick_Applier::enabled_fixes();
 ?>
 <div class="wrap llmsclick-wrap">
     <h1>
@@ -17,53 +17,53 @@ $enabled    = LlmsClick_Applier::enabled_fixes();
         llms.click <span class="llmsclick-ver">v<?php echo esc_html(LLMSCLICK_VERSION); ?></span>
     </h1>
     <p class="llmsclick-lead">
-        <?php esc_html_e('Applica con un click i fix di discoverability AI generati sui dati reali del tuo sito. Serve un account llms.click con piano Silver o superiore.', 'llmsclick'); ?>
-        <a href="<?php echo esc_url(LLMSCLICK_API_BASE . '/profile?tab=apikeys&domain=' . rawurlencode($site_host)); ?>" target="_blank" rel="noopener"><?php esc_html_e('Genera la tua API key →', 'llmsclick'); ?></a>
+        <?php esc_html_e('Apply AI-discoverability fixes generated on your real site content with one click. Requires an llms.click account on the Silver plan or higher.', 'llmsclick'); ?>
+        <a href="<?php echo esc_url(LLMSCLICK_API_BASE . '/profile?tab=apikeys&domain=' . rawurlencode($llmsclick_site_host)); ?>" target="_blank" rel="noopener"><?php esc_html_e('Generate your API key →', 'llmsclick'); ?></a>
     </p>
 
-    <h2 class="title"><?php esc_html_e('1. Connessione', 'llmsclick'); ?></h2>
+    <h2 class="title"><?php esc_html_e('1. Connection', 'llmsclick'); ?></h2>
     <table class="form-table" role="presentation">
         <tr>
             <th scope="row"><label for="llmsclick-key"><?php esc_html_e('API key', 'llmsclick'); ?></label></th>
             <td>
                 <input type="password" id="llmsclick-key" class="regular-text" autocomplete="off"
-                       placeholder="<?php echo $api_key !== '' ? esc_attr($key_masked) : 'llms_ex_...'; ?>">
-                <button type="button" class="button" id="llmsclick-validate"><?php esc_html_e('Verifica e salva', 'llmsclick'); ?></button>
+                       placeholder="<?php echo $llmsclick_api_key !== '' ? esc_attr($llmsclick_key_masked) : 'llms_ex_...'; ?>">
+                <button type="button" class="button" id="llmsclick-validate"><?php esc_html_e('Verify and save', 'llmsclick'); ?></button>
                 <span id="llmsclick-key-status" class="llmsclick-status"></span>
-                <p class="description"><?php esc_html_e('La chiave e\' legata a questo dominio. Restera\' salvata in modo cifrato e mai visibile nel front-end.', 'llmsclick'); ?></p>
+                <p class="description"><?php esc_html_e('The key is tied to this domain. It is stored encrypted and never exposed in the front-end.', 'llmsclick'); ?></p>
             </td>
         </tr>
         <tr>
-            <th scope="row"><?php esc_html_e('Dominio', 'llmsclick'); ?></th>
+            <th scope="row"><?php esc_html_e('Domain', 'llmsclick'); ?></th>
             <td>
-                <code style="font-size:13px;padding:4px 8px;background:#f0f0f1;border-radius:4px"><?php echo esc_html($site_host); ?></code>
-                <p class="description"><?php esc_html_e('I fix vengono generati e applicati per questo sito. La chiave deve essere autorizzata su questo dominio (limite domini secondo il piano).', 'llmsclick'); ?></p>
+                <code style="font-size:13px;padding:4px 8px;background:#f0f0f1;border-radius:4px"><?php echo esc_html($llmsclick_site_host); ?></code>
+                <p class="description"><?php esc_html_e('Fixes are generated and applied for this site. The key must be authorized for this domain (the domain limit depends on your plan).', 'llmsclick'); ?></p>
             </td>
         </tr>
     </table>
 
-    <h2 class="title"><?php esc_html_e('2. Fix disponibili', 'llmsclick'); ?></h2>
+    <h2 class="title"><?php esc_html_e('2. Available fixes', 'llmsclick'); ?></h2>
     <p>
-        <button type="button" class="button button-primary" id="llmsclick-load"><?php esc_html_e('Analizza e carica i fix', 'llmsclick'); ?></button>
+        <button type="button" class="button button-primary" id="llmsclick-load"><?php esc_html_e('Analyze and load fixes', 'llmsclick'); ?></button>
         <span id="llmsclick-load-status" class="llmsclick-status"></span>
     </p>
 
     <div id="llmsclick-warnings"></div>
     <div id="llmsclick-score"></div>
 
-    <?php if (!empty($enabled)): ?>
+    <?php if (!empty($llmsclick_enabled)): ?>
         <p class="description"><?php
-            /* translators: %d numero fix attivi */
-            printf(esc_html__('Hai %d fix attivi su questo sito.', 'llmsclick'), count($enabled));
+            /* translators: %d: number of active fixes */
+            printf(esc_html__('You have %d active fixes on this site.', 'llmsclick'), count($llmsclick_enabled));
         ?></p>
     <?php endif; ?>
 
     <div id="llmsclick-fixes" class="llmsclick-fixes" aria-live="polite"></div>
 
-    <h2 class="title"><?php esc_html_e('Contenuto FAQ', 'llmsclick'); ?></h2>
+    <h2 class="title"><?php esc_html_e('FAQ content', 'llmsclick'); ?></h2>
     <p class="description">
-        <?php esc_html_e('Per la struttura answer-ready (paragrafo + FAQ + JSON-LD), abilita il fix qui sopra e inserisci nel contenuto della pagina lo shortcode:', 'llmsclick'); ?>
+        <?php esc_html_e('For the answer-ready structure (paragraph + FAQ + JSON-LD), enable the fix above and add this shortcode to your page content:', 'llmsclick'); ?>
         <code>[llmsclick_faq]</code>
-        <?php esc_html_e('oppure il blocco "llms.click FAQ" nell\'editor.', 'llmsclick'); ?>
+        <?php esc_html_e('or the "llms.click FAQ" block in the editor.', 'llmsclick'); ?>
     </p>
 </div>

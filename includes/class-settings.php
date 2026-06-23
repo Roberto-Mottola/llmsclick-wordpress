@@ -37,7 +37,7 @@ class LlmsClick_Settings {
 
     public function action_links($links) {
         $url = admin_url('options-general.php?page=llmsclick');
-        array_unshift($links, '<a href="' . esc_url($url) . '">' . esc_html__('Impostazioni', 'llmsclick') . '</a>');
+        array_unshift($links, '<a href="' . esc_url($url) . '">' . esc_html__('Settings', 'llmsclick') . '</a>');
         return $links;
     }
 
@@ -49,13 +49,13 @@ class LlmsClick_Settings {
             'ajax'  => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce(self::NONCE),
             'i18n'  => [
-                'validating' => __('Verifica in corso...', 'llmsclick'),
-                'loading'    => __('Carico i fix dal tuo sito...', 'llmsclick'),
-                'applied'    => __('Applicato', 'llmsclick'),
-                'apply'      => __('Applica', 'llmsclick'),
-                'remove'     => __('Rimuovi', 'llmsclick'),
-                'error'      => __('Errore', 'llmsclick'),
-                'review'     => __('Rileggi prima di pubblicare', 'llmsclick'),
+                'validating' => __('Verifying...', 'llmsclick'),
+                'loading'    => __('Loading fixes from your site...', 'llmsclick'),
+                'applied'    => __('Applied', 'llmsclick'),
+                'apply'      => __('Apply', 'llmsclick'),
+                'remove'     => __('Remove', 'llmsclick'),
+                'error'      => __('Error', 'llmsclick'),
+                'review'     => __('Review before publishing', 'llmsclick'),
             ],
         ]);
     }
@@ -71,28 +71,30 @@ class LlmsClick_Settings {
 
     private function guard(): void {
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(['message' => __('Non autorizzato.', 'llmsclick')], 403);
+            wp_send_json_error(['message' => __('Not authorized.', 'llmsclick')], 403);
         }
         if (!check_ajax_referer(self::NONCE, 'nonce', false)) {
-            wp_send_json_error(['message' => __('Nonce non valido. Ricarica la pagina.', 'llmsclick')], 403);
+            wp_send_json_error(['message' => __('Invalid nonce. Please reload the page.', 'llmsclick')], 403);
         }
     }
 
     public function ajax_save_settings(): void {
         $this->guard();
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in guard() via check_ajax_referer().
         $key = isset($_POST['api_key']) ? sanitize_text_field(wp_unslash($_POST['api_key'])) : '';
 
         if ($key !== '') { update_option(LLMSCLICK_OPT_KEY, $key, false); }
 
-        wp_send_json_success(['message' => __('Impostazioni salvate.', 'llmsclick')]);
+        wp_send_json_success(['message' => __('Settings saved.', 'llmsclick')]);
     }
 
     public function ajax_validate_key(): void {
         $this->guard();
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in guard() via check_ajax_referer().
         $key = isset($_POST['api_key']) ? sanitize_text_field(wp_unslash($_POST['api_key'])) : '';
         if ($key === '') { $key = (string) get_option(LLMSCLICK_OPT_KEY, ''); }
         if ($key === '') {
-            wp_send_json_error(['message' => __('Inserisci una API key.', 'llmsclick')]);
+            wp_send_json_error(['message' => __('Enter an API key.', 'llmsclick')]);
         }
         $api = new LlmsClick_Api($key);
         $res = $api->validate_key($this->target_url());
@@ -106,7 +108,7 @@ class LlmsClick_Settings {
         $this->guard();
         $api = new LlmsClick_Api();
         if (!$api->has_key()) {
-            wp_send_json_error(['message' => __('Configura prima la API key.', 'llmsclick')]);
+            wp_send_json_error(['message' => __('Configure the API key first.', 'llmsclick')]);
         }
         $data = $api->fetch_fixes($this->target_url());
         if (is_wp_error($data)) {
@@ -114,7 +116,7 @@ class LlmsClick_Settings {
         }
         if (!empty($data['locked'])) {
             wp_send_json_error([
-                'message'     => __('Il tuo piano non include i fix. Serve Silver o superiore.', 'llmsclick'),
+                'message'     => __('Your plan does not include fixes. Silver or higher is required.', 'llmsclick'),
                 'upgrade_url' => LLMSCLICK_API_BASE . '/pricing',
                 'locked'      => true,
             ]);
@@ -142,11 +144,13 @@ class LlmsClick_Settings {
 
     public function ajax_toggle_fix(): void {
         $this->guard();
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in guard() via check_ajax_referer().
         $check  = isset($_POST['check']) ? sanitize_key(wp_unslash($_POST['check'])) : '';
-        $enable = isset($_POST['enable']) && $_POST['enable'] === '1';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in guard() via check_ajax_referer().
+        $enable = isset($_POST['enable']) && '1' === ( isset($_POST['enable']) ? sanitize_key(wp_unslash($_POST['enable'])) : '' );
 
         if ($check === '') {
-            wp_send_json_error(['message' => __('Check mancante.', 'llmsclick')]);
+            wp_send_json_error(['message' => __('Missing check.', 'llmsclick')]);
         }
 
         if ($enable) {
@@ -163,10 +167,10 @@ class LlmsClick_Settings {
                 }
             }
             if (!$found) {
-                wp_send_json_error(['message' => __('Fix non disponibile per questo sito.', 'llmsclick')]);
+                wp_send_json_error(['message' => __('Fix not available for this site.', 'llmsclick')]);
             }
             if (!LlmsClick_Applier::enable($check, $found)) {
-                wp_send_json_error(['message' => __('Questo fix non e\' applicabile automaticamente (e\' una guida).', 'llmsclick')]);
+                wp_send_json_error(['message' => __('This fix cannot be applied automatically (it is a guide).', 'llmsclick')]);
             }
         } else {
             LlmsClick_Applier::disable($check);

@@ -6,26 +6,26 @@
 
 if (!defined('WP_UNINSTALL_PLUGIN')) { exit; }
 
-$options = [
+$llmsclick_options = [
     'llmsclick_api_key',
     'llmsclick_enabled_fixes',
     'llmsclick_lang',
     'llmsclick_target_url',
 ];
 
-function llmsclick_cleanup_options($options) {
-    foreach ($options as $opt) {
+function llmsclick_cleanup_options($opts) {
+    foreach ($opts as $opt) {
         delete_option($opt);
     }
 }
 
 if (is_multisite()) {
-    $sites = get_sites(['fields' => 'ids']);
-    foreach ($sites as $blog_id) {
-        switch_to_blog($blog_id);
-        llmsclick_cleanup_options($options);
+    $llmsclick_sites = get_sites(['fields' => 'ids']);
+    foreach ($llmsclick_sites as $llmsclick_blog_id) {
+        switch_to_blog($llmsclick_blog_id);
+        llmsclick_cleanup_options($llmsclick_options);
         restore_current_blog();
     }
 } else {
-    llmsclick_cleanup_options($options);
+    llmsclick_cleanup_options($llmsclick_options);
 }

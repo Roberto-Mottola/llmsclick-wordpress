@@ -111,8 +111,10 @@ class LlmsClick_Applier {
     public static function flush_caches(): void {
         if (function_exists('wp_cache_flush')) { wp_cache_flush(); }
         if (function_exists('rocket_clean_domain')) { rocket_clean_domain(); }           // WP Rocket
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- third-party hook owned by the LiteSpeed Cache plugin; we trigger its cache purge.
         if (class_exists('LiteSpeed\\Purge')) { do_action('litespeed_purge_all'); }       // LiteSpeed
         if (function_exists('w3tc_flush_all')) { w3tc_flush_all(); }                      // W3 Total Cache
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- third-party hook owned by the Cache Enabler plugin; we trigger its cache purge.
         if (has_action('cache_enabler_clear_complete_cache')) { do_action('cache_enabler_clear_complete_cache'); }
     }
 
@@ -147,7 +149,7 @@ class LlmsClick_Applier {
         $fix = self::get_fix('aeo_structure');
         if (!$fix || empty($fix['code'])) {
             if (current_user_can('manage_options')) {
-                return '<!-- llms.click: nessun blocco FAQ configurato. Abilita il fix "answer-ready" nelle impostazioni del plugin. -->';
+                return '<!-- llms.click: no FAQ block configured. Enable the "answer-ready" fix in the plugin settings. -->';
             }
             return '';
         }

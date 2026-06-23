@@ -62,7 +62,7 @@
                         $('#llmsclick-warnings').html(
                             '<div class="notice notice-warning"><p>' + esc(m) +
                             ' <a href="' + esc(r.data.upgrade_url) + '" target="_blank" rel="noopener">' +
-                            'Aggiorna il piano →</a></p></div>'
+                            'Upgrade your plan →</a></p></div>'
                         );
                     }
                     return;
@@ -78,14 +78,14 @@
         var html = '';
         if (w.seo_plugin) {
             html += '<div class="notice notice-info inline"><p><strong>' + esc(w.seo_plugin) +
-                '</strong> rilevato. I fix per title, meta description, Open Graph e schema sono ' +
-                'gestiti dal tuo plugin SEO: li mostriamo come suggerimento ma non li applichiamo ' +
-                'per evitare doppioni.</p></div>';
+                '</strong> detected. The fixes for title, meta description, Open Graph and schema are ' +
+                'handled by your SEO plugin: we show them as suggestions but do not apply them ' +
+                'to avoid duplicates.</p></div>';
         }
         if (w.physical_robots) {
-            html += '<div class="notice notice-warning inline"><p>Esiste un file <code>robots.txt</code> ' +
-                'fisico nella root: WordPress (e quindi questo plugin) non puo\' modificarlo. ' +
-                'Aggiungi le direttive AI-bot a mano, oppure rimuovi il file fisico.</p></div>';
+            html += '<div class="notice notice-warning inline"><p>A physical <code>robots.txt</code> ' +
+                'file exists in the site root: WordPress (and therefore this plugin) cannot modify it. ' +
+                'Add the AI-bot directives manually, or remove the physical file.</p></div>';
         }
         $('#llmsclick-warnings').html(html);
     }
@@ -93,15 +93,15 @@
     function renderScore(score) {
         if (!score) { return; }
         $('#llmsclick-score').html(
-            '<div class="llmsclick-score">Punteggio attuale: <strong>' +
+            '<div class="llmsclick-score">Current score: <strong>' +
             esc(score.total) + '/' + esc(score.max) + '</strong> (' + esc(score.grade) + ')</div>'
         );
     }
 
     var BUCKET_LABELS = {
-        head: 'Head del sito (JSON-LD, Open Graph, meta)',
-        file: 'File (robots.txt, llms.txt, sitemap)',
-        body: 'Contenuto della pagina (FAQ, struttura)',
+        head: 'Site head (JSON-LD, Open Graph, meta)',
+        file: 'Files (robots.txt, llms.txt, sitemap)',
+        body: 'Page content (FAQ, structure)',
         server: 'Server (HTTPS, 404)'
     };
 
@@ -127,7 +127,7 @@
         });
 
         if (!any) {
-            $wrap.html('<p>' + esc('Nessun fix da applicare: il sito e\' gia\' a posto su questi controlli. 🎉') + '</p>');
+            $wrap.html('<p>' + esc('No fixes to apply: your site is already in good shape on these checks. 🎉') + '</p>');
         }
     }
 
@@ -141,7 +141,7 @@
             $head.append('<span class="llmsclick-badge review">' + esc(LLMSCLICK.i18n.review) + '</span>');
         }
         if (fix.kind === 'guide' || !fix.applicable) {
-            $head.append('<span class="llmsclick-badge guide">Guida</span>');
+            $head.append('<span class="llmsclick-badge guide">Guide</span>');
         }
         $card.append($head);
 
@@ -154,12 +154,12 @@
 
         if (fix.code) {
             var $pre = $('<pre class="llmsclick-code">').text(fix.code);
-            var $toggle = $('<a href="#" class="llmsclick-code-toggle">Mostra codice</a>');
+            var $toggle = $('<a href="#" class="llmsclick-code-toggle">Show code</a>');
             var $box = $('<div class="llmsclick-code-box" hidden>').append($pre);
             $toggle.on('click', function (e) {
                 e.preventDefault();
                 $box.prop('hidden', !$box.prop('hidden'));
-                $(this).text($box.prop('hidden') ? 'Mostra codice' : 'Nascondi codice');
+                $(this).text($box.prop('hidden') ? 'Show code' : 'Hide code');
             });
             $card.append($toggle).append($box);
         }

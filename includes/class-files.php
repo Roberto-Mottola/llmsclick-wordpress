@@ -22,7 +22,8 @@ class LlmsClick_Files {
     /** True se la richiesta corrente e' per /llms.txt (con o senza slash). */
     private function is_llmstxt_request(): bool {
         if ((int) get_query_var(self::QV) === 1) { return true; }
-        $path = strtolower(trim(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '', '/'));
+        $uri  = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
+        $path = strtolower(trim((string) wp_parse_url($uri, PHP_URL_PATH), '/'));
         return $path === 'llms.txt';
     }
 
@@ -52,6 +53,7 @@ class LlmsClick_Files {
         status_header(200);
         header('Content-Type: text/plain; charset=utf-8');
         header('X-Robots-Tag: noindex'); // il file stesso non va indicizzato
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- plain-text body produced by wp_strip_all_tags and served as text/plain; HTML escaping would corrupt the file.
         echo $body;
         exit;
     }

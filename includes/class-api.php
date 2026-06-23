@@ -38,30 +38,30 @@ class LlmsClick_Api {
         $body = $res['body'];
 
         if ($code === 401) {
-            return ['ok' => false, 'message' => __('Chiave non valida o scaduta.', 'llmsclick')];
+            return ['ok' => false, 'message' => __('Invalid or expired key.', 'llmsclick')];
         }
         if (!empty($body['locked'])) {
             return [
                 'ok'      => true,
                 'locked'  => true,
                 'plan'    => $body['plan'] ?? 'free',
-                'message' => __('Chiave valida, ma il piano non include i fix. Serve Silver o superiore.', 'llmsclick'),
+                'message' => __('Valid key, but your plan does not include fixes. Silver or higher is required.', 'llmsclick'),
             ];
         }
         if ($code === 403 && !empty($body['domain_limit'])) {
             return [
                 'ok'      => false,
                 'message' => sprintf(
-                    /* translators: %d numero massimo domini */
-                    __('Questa chiave ha raggiunto il numero massimo di domini consentiti dal piano (%d). Usa una chiave dedicata a questo sito o aggiorna il piano.', 'llmsclick'),
+                    /* translators: %d: maximum number of domains */
+                    __('This key has reached the maximum number of domains allowed by your plan (%d). Use a key dedicated to this site or upgrade your plan.', 'llmsclick'),
                     (int) ($body['limit'] ?? 1)
                 ),
             ];
         }
         if ($code >= 200 && $code < 300 && !empty($body['fix'])) {
-            return ['ok' => true, 'locked' => false, 'message' => __('Chiave valida e attiva.', 'llmsclick')];
+            return ['ok' => true, 'locked' => false, 'message' => __('Key valid and active.', 'llmsclick')];
         }
-        return ['ok' => false, 'message' => $body['error'] ?? __('Risposta inattesa dal server.', 'llmsclick')];
+        return ['ok' => false, 'message' => $body['error'] ?? __('Unexpected response from the server.', 'llmsclick')];
     }
 
     /**
@@ -77,16 +77,16 @@ class LlmsClick_Api {
             return $res;
         }
         if ($res['code'] === 401) {
-            return new WP_Error('llmsclick_auth', __('Chiave non valida o scaduta.', 'llmsclick'));
+            return new WP_Error('llmsclick_auth', __('Invalid or expired key.', 'llmsclick'));
         }
         if ($res['code'] === 403 && !empty($res['body']['domain_limit'])) {
-            return new WP_Error('llmsclick_domain', __('Dominio non autorizzato per questa chiave API.', 'llmsclick'));
+            return new WP_Error('llmsclick_domain', __('Domain not authorized for this API key.', 'llmsclick'));
         }
         if ($res['code'] === 429) {
-            return new WP_Error('llmsclick_rate', __('Troppe richieste. Riprova tra qualche minuto.', 'llmsclick'));
+            return new WP_Error('llmsclick_rate', __('Too many requests. Please try again in a few minutes.', 'llmsclick'));
         }
         if ($res['code'] < 200 || $res['code'] >= 300) {
-            return new WP_Error('llmsclick_http', $res['body']['error'] ?? __('Errore dal server llms.click.', 'llmsclick'));
+            return new WP_Error('llmsclick_http', $res['body']['error'] ?? __('Error from the llms.click server.', 'llmsclick'));
         }
         return $res['body'];
     }

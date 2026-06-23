@@ -53,6 +53,7 @@ class LlmsClick_Head {
         }
 
         if ($blocks) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each block is either a <meta> tag sanitized via wp_kses() or a JSON-LD block whose JSON was validated with json_decode() and re-wrapped in a fixed <script type="application/ld+json"> tag (see sanitize_head_block).
             echo "\n<!-- llms.click fixes -->\n" . implode("\n", $blocks) . "\n<!-- /llms.click fixes -->\n";
         }
     }
