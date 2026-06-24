@@ -53,7 +53,7 @@ class LlmsClick_Head {
         }
 
         if ($blocks) {
-            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each block is either a <meta> tag sanitized via wp_kses() or a JSON-LD block whose JSON was validated with json_decode() and re-wrapped in a fixed <script type="application/ld+json"> tag (see sanitize_head_block).
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each block is either a <meta> tag sanitized via wp_kses(), or a JSON-LD block re-encoded with JSON_HEX_TAG/JSON_HEX_AMP (see LlmsClick_Applier::jsonld_script) so "<", ">" and "&" are unicode-escaped and cannot break out of the <script> tag.
             echo "\n<!-- llms.click fixes -->\n" . implode("\n", $blocks) . "\n<!-- /llms.click fixes -->\n";
         }
     }
@@ -73,16 +73,16 @@ class LlmsClick_Head {
         return '';
     }
 
-    /** Estrae e ri-serializza solo i blocchi ld+json con JSON valido. */
+    /** Extracts and re-serializes only the valid ld+json blocks (tag-safe). */
     private function extract_jsonld(string $code): string {
         if (!preg_match_all('#<script[^>]*application/ld\+json[^>]*>(.*?)</script>#is', $code, $matches)) {
             return '';
         }
         $out = '';
         foreach ($matches[1] as $json) {
-            $json = trim($json);
-            if ($json === '' || json_decode($json) === null) { continue; }
-            $out .= '<script type="application/ld+json">' . $json . "</script>\n";
+            // jsonld_script re-encodes with JSON_HEX_TAG so "</script>" cannot break out.
+            $script = LlmsClick_Applier::jsonld_script(trim($json));
+            if ($script !== '') { $out .= $script . "\n"; }
         }
         return trim($out);
     }

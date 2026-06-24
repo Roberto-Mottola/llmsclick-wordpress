@@ -153,19 +153,30 @@ class LlmsClick_Applier {
             }
             return '';
         }
-        // Il code contiene HTML + uno <script type="application/ld+json"> sicuro.
-        // Lo si stampa nel body (JSON-LD valido anche fuori dal head).
+        // The body is sanitized with wp_kses; the JSON-LD is re-injected via a
+        // tag-safe wrapper (see jsonld_script) so it cannot break out of <script>.
         $allowed = self::faq_allowed_html();
         $html = wp_kses($fix['code'], $allowed);
 
-        // wp_kses rimuove <script>: re-iniettiamo solo il blocco ld+json validato.
         if (preg_match('#<script[^>]*application/ld\+json[^>]*>(.*?)</script>#is', $fix['code'], $m)) {
-            $json = trim($m[1]);
-            if (json_decode($json) !== null) {
-                $html .= "\n<script type=\"application/ld+json\">" . $json . "</script>";
-            }
+            $script = self::jsonld_script(trim($m[1]));
+            if ($script !== '') { $html .= "\n" . $script; }
         }
         return $html;
+    }
+
+    /**
+     * Wraps a JSON-LD string in a <script type="application/ld+json"> tag,
+     * re-encoding it with JSON_HEX_TAG / JSON_HEX_AMP so any value containing
+     * "</script>" (or "<", ">", "&") is unicode-escaped and cannot break out
+     * of the script tag. Returns '' if the JSON is invalid. Output is safe.
+     */
+    public static function jsonld_script(string $json): string {
+        $data = json_decode($json, true);
+        if ($data === null) { return ''; }
+        $safe = wp_json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+        if (!is_string($safe)) { return ''; }
+        return '<script type="application/ld+json">' . $safe . '</script>';
     }
 
     /** Whitelist tag per il corpo FAQ. */
